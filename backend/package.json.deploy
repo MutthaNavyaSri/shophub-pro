@@ -1,0 +1,14 @@
+{
+  "name": "shophub-pro-backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "seed": "node seedProducts.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
