@@ -6,7 +6,6 @@ import {
   Box,
   Paper,
   Typography,
-  TextField,
   Button,
   Avatar,
   Grid,
@@ -21,12 +20,8 @@ import {
 } from '@mui/material';
 import {
   ArrowBack as BackIcon,
-  Edit as EditIcon,
-  Save as SaveIcon,
-  Cancel as CancelIcon,
   Email as EmailIcon,
   Person as PersonIcon,
-  Phone as PhoneIcon,
   ShoppingBag as ShopIcon,
 } from '@mui/icons-material';
 import { toast } from 'react-toastify';
@@ -39,27 +34,7 @@ const Profile = () => {
   const { user } = useSelector((state) => state.auth);
   const { data: products } = useGetProductsQuery();
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    firstname: user?.firstname || '',
-    lastname: user?.lastname || '',
-    phone: user?.phone || '',
-  });
-
   const userProducts = products?.filter((p) => p.createdBy === user?._id) || [];
-
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleSave = () => {
-    // In a real app, you'd make an API call here
-    toast.success('Profile updated successfully!');
-    setIsEditing(false);
-  };
 
   const handleLogout = () => {
     dispatch(logout());
@@ -189,43 +164,10 @@ const Profile = () => {
             {/* Profile Information */}
             <Grid item xs={12} md={8}>
               <Paper elevation={0} sx={{ p: 4, borderRadius: 3, mb: 3 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+                <Box sx={{ mb: 3 }}>
                   <Typography variant="h5" fontWeight={700}>
                     Profile Information
                   </Typography>
-                  {!isEditing ? (
-                    <Button
-                      startIcon={<EditIcon />}
-                      variant="outlined"
-                      onClick={() => setIsEditing(true)}
-                    >
-                      Edit Profile
-                    </Button>
-                  ) : (
-                    <Stack direction="row" spacing={1}>
-                      <Button
-                        startIcon={<SaveIcon />}
-                        variant="contained"
-                        onClick={handleSave}
-                      >
-                        Save
-                      </Button>
-                      <Button
-                        startIcon={<CancelIcon />}
-                        variant="outlined"
-                        onClick={() => {
-                          setIsEditing(false);
-                          setFormData({
-                            firstname: user?.firstname || '',
-                            lastname: user?.lastname || '',
-                            phone: user?.phone || '',
-                          });
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                    </Stack>
-                  )}
                 </Box>
 
                 <Grid container spacing={3}>
@@ -236,19 +178,9 @@ const Profile = () => {
                         First Name
                       </Typography>
                     </Box>
-                    {isEditing ? (
-                      <TextField
-                        fullWidth
-                        name="firstname"
-                        value={formData.firstname}
-                        onChange={handleChange}
-                        size="small"
-                      />
-                    ) : (
-                      <Typography variant="body1" fontWeight={600}>
-                        {user?.firstname}
-                      </Typography>
-                    )}
+                    <Typography variant="body1" fontWeight={600}>
+                      {user?.firstname}
+                    </Typography>
                   </Grid>
 
                   <Grid item xs={12} sm={6}>
@@ -258,19 +190,9 @@ const Profile = () => {
                         Last Name
                       </Typography>
                     </Box>
-                    {isEditing ? (
-                      <TextField
-                        fullWidth
-                        name="lastname"
-                        value={formData.lastname}
-                        onChange={handleChange}
-                        size="small"
-                      />
-                    ) : (
-                      <Typography variant="body1" fontWeight={600}>
-                        {user?.lastname}
-                      </Typography>
-                    )}
+                    <Typography variant="body1" fontWeight={600}>
+                      {user?.lastname}
+                    </Typography>
                   </Grid>
 
                   <Grid item xs={12} sm={6}>
@@ -283,28 +205,6 @@ const Profile = () => {
                     <Typography variant="body1" fontWeight={600}>
                       {user?.email}
                     </Typography>
-                  </Grid>
-
-                  <Grid item xs={12} sm={6}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                      <PhoneIcon sx={{ mr: 1, color: 'primary.main' }} />
-                      <Typography variant="body2" color="text.secondary">
-                        Phone Number
-                      </Typography>
-                    </Box>
-                    {isEditing ? (
-                      <TextField
-                        fullWidth
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        size="small"
-                      />
-                    ) : (
-                      <Typography variant="body1" fontWeight={600}>
-                        {user?.phone || 'Not provided'}
-                      </Typography>
-                    )}
                   </Grid>
                 </Grid>
               </Paper>
