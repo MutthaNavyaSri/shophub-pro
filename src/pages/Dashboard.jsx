@@ -60,6 +60,7 @@ const Dashboard = () => {
     data: allProducts,
     isLoading: allProductsLoading,
     error: allProductsError,
+    refetch: refetchAll,
   } = useGetAllProductsQuery(undefined, {
     skip: selectedCategory !== 'all',
   });
@@ -68,6 +69,7 @@ const Dashboard = () => {
     data: categoryProducts,
     isLoading: categoryProductsLoading,
     error: categoryProductsError,
+    refetch: refetchCategory,
   } = useGetProductsByCategoryQuery(selectedCategory, {
     skip: selectedCategory === 'all',
   });
@@ -306,7 +308,15 @@ const Dashboard = () => {
       {/* Product Modal (Create/Edit) */}
       <ProductModal
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={() => {
+          setModalOpen(false);
+          // Refetch the current view after closing modal
+          if (selectedCategory === 'all') {
+            refetchAll();
+          } else {
+            refetchCategory();
+          }
+        }}
         product={editingProduct}
       />
 

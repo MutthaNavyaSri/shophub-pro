@@ -15,7 +15,7 @@ export const fakestoreApi = createApi({
     },
   }),
   tagTypes: ['Products', 'User'],
-  keepUnusedDataFor: 0, // Don't cache data for better real-time updates
+  refetchOnMountOrArgChange: true, // Always refetch on mount for fresh data
   endpoints: (builder) => ({
     // Authentication
     login: builder.mutation({
@@ -59,7 +59,10 @@ export const fakestoreApi = createApi({
     // Get products by category
     getProductsByCategory: builder.query({
       query: (category) => `/products/category/${category}`,
-      providesTags: ['Products'],
+      providesTags: (result, error, category) =>
+        result
+          ? [...result.map(({ _id }) => ({ type: 'Products', id: _id })), { type: 'Products', id: 'LIST' }]
+          : [{ type: 'Products', id: 'LIST' }],
     }),
     
     // Get all categories
@@ -75,19 +78,6 @@ export const fakestoreApi = createApi({
         body: product,
       }),
       invalidatesTags: [{ type: 'Products', id: 'LIST' }],
-      // Optimistic update
-      async onQueryStarted(product, { dispatch, queryFulfilled }) {
-        const patchResult = dispatch(
-          fakestoreApi.util.updateQueryData('getAllProducts', undefined, (draft) => {
-            draft.push({ ...product, _id: Date.now() });
-          })
-        );
-        try {
-          await queryFulfilled;
-        } catch {
-          patchResult.undo();
-        }
-      },
     }),
     
     // Update product (PUT)
@@ -98,22 +88,6 @@ export const fakestoreApi = createApi({
         body: product,
       }),
       invalidatesTags: (result, error, { id }) => [{ type: 'Products', id }, { type: 'Products', id: 'LIST' }],
-      // Optimistic update
-      async onQueryStarted({ id, ...patch }, { dispatch, queryFulfilled }) {
-        const patchResult = dispatch(
-          fakestoreApi.util.updateQueryData('getAllProducts', undefined, (draft) => {
-            const index = draft.findIndex((product) => product._id === id);
-            if (index !== -1) {
-              Object.assign(draft[index], patch);
-            }
-          })
-        );
-        try {
-          await queryFulfilled;
-        } catch {
-          patchResult.undo();
-        }
-      },
     }),
     
     // Partial update product (PATCH)
@@ -124,22 +98,6 @@ export const fakestoreApi = createApi({
         body: updates,
       }),
       invalidatesTags: (result, error, { id }) => [{ type: 'Products', id }, { type: 'Products', id: 'LIST' }],
-      // Optimistic update
-      async onQueryStarted({ id, ...patch }, { dispatch, queryFulfilled }) {
-        const patchResult = dispatch(
-          fakestoreApi.util.updateQueryData('getAllProducts', undefined, (draft) => {
-            const index = draft.findIndex((product) => product._id === id);
-            if (index !== -1) {
-              Object.assign(draft[index], patch);
-            }
-          })
-        );
-        try {
-          await queryFulfilled;
-        } catch {
-          patchResult.undo();
-        }
-      },
     }),
     
     // Delete product (DELETE)
@@ -149,22 +107,6 @@ export const fakestoreApi = createApi({
         method: 'DELETE',
       }),
       invalidatesTags: (result, error, id) => [{ type: 'Products', id }, { type: 'Products', id: 'LIST' }],
-      // Optimistic update - immediately remove from UI
-      async onQueryStarted(id, { dispatch, queryFulfilled }) {
-        const patchResult = dispatch(
-          fakestoreApi.util.updateQueryData('getAllProducts', undefined, (draft) => {
-            const index = draft.findIndex((product) => product._id === id);
-            if (index !== -1) {
-              draft.splice(index, 1);
-            }
-          })
-        );
-        try {
-          await queryFulfilled;
-        } catch {
-          patchResult.undo();
-        }
-      },
     }),
   }),
 });
